@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\PasswordResetToken;
+use App\Entity\PasswordResetRequest;
 use App\Entity\User;
 use App\Form\PasswordRequestFormType;
 use App\Form\PasswordResettingFormType;
@@ -15,6 +15,8 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
+use SymfonyCasts\Bundle\ResetPassword\PasswordResetHelperInterface;
 
 /**
  * @Route("/forgot-password")
@@ -27,7 +29,7 @@ class ForgotPasswordController extends AbstractController
     /**
      * @Route("/request", name="app_forgot_password_request")
      */
-    public function request(Request $request, MailerInterface $mailer): Response
+    public function request(Request $request, MailerInterface $mailer, PasswordResetHelperInterface $passwordResetHelper): Response
     {
         $form = $this->createForm(PasswordRequestFormType::class);
         $form->handleRequest($request);
@@ -45,17 +47,14 @@ class ForgotPasswordController extends AbstractController
                 return $this->redirectToRoute('app_check_email');
             }
 
-            // If User already has a valid Token, we don't want to generate a new one.
-            // We fail silently.
-            $oldTokens = $this->getDoctrine()->getRepository(PasswordResetToken::class)->findNonExpiredForUser($user);
-            if (count($oldTokens) > 0) {
-                return $this->redirectToRoute('app_check_email');
+            try {
+                $resetToken = $passwordResetHelper->generateResetToken($user);
+            } catch (ResetPasswordExceptionInterface $e) {
+                // TODO - send an error to the template
+                //$e->getReason();
+                // temporarily, just throw
+                throw $e;
             }
-
-            // Generate a reset password token, that the user could use to change their password.
-            $resetPasswordToken = new PasswordResetToken($user);
-            $this->getDoctrine()->getManager()->persist($resetPasswordToken);
-            $this->getDoctrine()->getManager()->flush();
 
             $email = (new TemplatedEmail())
                 ->from(new Address('noreply@mydomain.com', 'Noreply'))
@@ -63,7 +62,7 @@ class ForgotPasswordController extends AbstractController
                 ->subject('Your password reset request')
                 ->htmlTemplate('forgot_password/email.html.twig')
                 ->context([
-                    'token' => $resetPasswordToken,
+                    'resetToken' => $resetToken,
                 ])
             ;
             $mailer->send($email);
@@ -89,7 +88,7 @@ class ForgotPasswordController extends AbstractController
         $session->remove(self::SESSION_CAN_CHECK_EMAIL);
 
         return $this->render('forgot_password/check_email.html.twig', [
-            'tokenLifetime' => PasswordResetToken::LIFETIME_HOURS,
+            'tokenLifetime' => PasswordResetRequest::LIFETIME_HOURS,
         ]);
     }
 
@@ -111,15 +110,15 @@ class ForgotPasswordController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $passwordResetToken = $this->getDoctrine()->getRepository(PasswordResetToken::class)->findOneBy([
-            'selector' => substr($tokenAndSelector, 0, PasswordResetToken::SELECTOR_LENGTH),
+        $passwordResetToken = $this->getDoctrine()->getRepository(PasswordResetRequest::class)->findOneBy([
+            'selector' => substr($tokenAndSelector, 0, PasswordResetRequest::SELECTOR_LENGTH),
         ]);
 
         if (!$passwordResetToken) {
             throw $this->createNotFoundException();
         }
 
-        if ($passwordResetToken->isExpired() || !$passwordResetToken->isTokenEquals(substr($tokenAndSelector, PasswordResetToken::SELECTOR_LENGTH))) {
+        if ($passwordResetToken->isExpired() || !$passwordResetToken->isTokenEquals(substr($tokenAndSelector, PasswordResetRequest::SELECTOR_LENGTH))) {
             $this->getDoctrine()->getManager()->remove($passwordResetToken);
             $this->getDoctrine()->getManager()->flush();
 

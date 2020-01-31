@@ -2,8 +2,8 @@
 
 <p>
     To reset your password, please visit
-    {{ url('app_reset_password', {tokenAndSelector: token.asString}) }}
-    This link will expire in {{ constant('LIFETIME_HOURS', token) }} hours.
+    {{ url('app_reset_password', {tokenAndSelector: resetToken.token}) }}
+    This link will expire in {{ resetTokenget.ExpiresAt|date('Y-m-d') }}TODO - convert to hours! hours.
 </p>
 
 <p>

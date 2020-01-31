@@ -28,7 +28,8 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "App\\": "src/",
+            "SymfonyCasts\\Bundle\\ResetPassword\\": "ResetPasswordBundle/src/"
         }
     },
     "autoload-dev": {
