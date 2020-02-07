@@ -19,6 +19,7 @@
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^6.3",
+        "dg/bypass-finals": "^1.1",
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "seferov/symfony-psalm-plugin": "^1.0",
         "symfony/maker-bundle": "^1.14",
