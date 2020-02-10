@@ -12,6 +12,8 @@
         <ignoreFiles>
             <file name="src/Kernel.php" />
             <directory name="vendor"/>
+            <directory name="ResetPasswordBundle/src/DependencyInjection" />
+            <directory name="ResetPasswordBundle/src/Resources" />
         </ignoreFiles>
     </projectFiles>
 
