@@ -10,6 +10,7 @@
         <directory name="src"/>
         <directory name="ResetPasswordBundle/src"/>
         <ignoreFiles>
+            <file name="src/Kernel.php" />
             <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
