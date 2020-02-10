@@ -36,6 +36,5 @@
 
     <listeners>
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
-        <listener class="SymfonyCasts\Bundle\ResetPassword\tests\BypassFinalListener" />
     </listeners>
 </phpunit>
