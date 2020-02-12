@@ -56,8 +56,4 @@
 
         <InvalidStringClass errorLevel="info"/>
     </issueHandlers>
-    <plugins>
-        <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
-        <pluginClass class="Seferov\SymfonyPsalmPlugin\Plugin"/>
-    </plugins>
 </psalm>

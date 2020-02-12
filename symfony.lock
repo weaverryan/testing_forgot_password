@@ -142,7 +142,7 @@
         "version": "1.0.0"
     },
     "php": {
-        "version": "7.4"
+        "version": "7.2"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.0.0"
@@ -167,9 +167,6 @@
     },
     "sebastian/diff": {
         "version": "4.0.0"
-    },
-    "seferov/symfony-psalm-plugin": {
-        "version": "v1.0.0"
     },
     "symfony/browser-kit": {
         "version": "v5.0.4"
@@ -437,9 +434,6 @@
     },
     "webmozart/path-util": {
         "version": "2.3.0"
-    },
-    "weirdan/doctrine-psalm-plugin": {
-        "version": "0.9.0"
     },
     "zendframework/zend-code": {
         "version": "3.4.1"
