@@ -6,6 +6,10 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * @author Jesse Rushlow <jr@rushlow.dev>
+ * @author Ryan Weaver <weaverryan@gmail.com>
+ */
 final class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
@@ -16,17 +20,17 @@ final class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('password_request_repository')
+                ->scalarNode('request_password_repository')
                     ->isRequired()
-                    ->info('A class that implements PasswordResetRequestRepositoryInterface - usually your PasswordResetTokenRepository.')
+                    ->info('A class that implements ResetPasswordRequestRepositoryInterface - usually your ResetPasswordRequestRepository.')
                 ->end()
                 ->integerNode('lifetime')
                     ->defaultValue(3600)
                     ->info('How long a reset password token should be valid before expiring.')
                 ->end()
-                ->integerNode('request_throttle_time')
+                ->integerNode('throttle_limit')
                     ->defaultValue(3600)
-                    ->info('How long a reset password token should be valid before expiring.')
+                    ->info('Length of time between non-expired reset password requests.')
                 ->end()
             ->end();
 
