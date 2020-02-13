@@ -2,9 +2,20 @@
 
 namespace SymfonyCasts\Bundle\ResetPassword\Model;
 
-class PasswordResetToken
+/**
+ * @author Jesse Rushlow <jr@rushlow.dev>
+ * @author Ryan Weaver <weaverryan@gmail.com>
+ */
+final class ResetPasswordToken
 {
+    /**
+     * @var string selector + non-hashed verifier token
+     */
     private $token;
+
+    /**
+     * @var \DateTimeInterface
+     */
     private $expiresAt;
 
     public function __construct(string $token, \DateTimeInterface $expiresAt)

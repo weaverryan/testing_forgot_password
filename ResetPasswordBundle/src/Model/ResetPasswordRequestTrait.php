@@ -4,27 +4,31 @@ namespace SymfonyCasts\Bundle\ResetPassword\Model;
 
 use Doctrine\ORM\Mapping as ORM;
 
-trait PasswordResetRequestTrait
+/**
+ * @author Jesse Rushlow <jr@rushlow.dev>
+ * @author Ryan Weaver <weaverryan@gmail.com>
+ */
+trait ResetPasswordRequestTrait
 {
     /**
      * @ORM\Column(type="string", length=100)
      */
-    protected $selector;
+    private $selector;
 
     /**
      * @ORM\Column(type="string", length=100)
      */
-    protected $hashedToken;
+    private $hashedToken;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime_immutable")
      */
-    protected $requestedAt;
+    private $requestedAt;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime_immutable")
      */
-    protected $expiresAt;
+    private $expiresAt;
 
     public function __construct(\DateTimeInterface $expiresAt, string $selector, string $hashedToken)
     {
@@ -34,18 +38,14 @@ trait PasswordResetRequestTrait
         $this->hashedToken = $hashedToken;
     }
 
-    public function getRequestedAt(): \DateTimeImmutable
+    public function getRequestedAt(): \DateTimeInterface
     {
         return $this->requestedAt;
     }
 
     public function isExpired(): bool
     {
-        if ($this->expiresAt->getTimestamp() <= time()) {
-            return true;
-        }
-
-        return false;
+        return $this->expiresAt->getTimestamp() <= time();
     }
 
     public function getExpiresAt(): \DateTimeInterface
