@@ -3,13 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\PasswordResetRequest;
-use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Symfony\Component\Security\Core\User\UserInterface;
-use SymfonyCasts\Bundle\ResetPassword\Model\PasswordResetRequestInterface;
-use SymfonyCasts\Bundle\ResetPassword\Persistence\PasswordResetRequestRepositoryInterface;
-use SymfonyCasts\Bundle\ResetPassword\Persistence\Repository\PasswordResetRequestRepositoryTrait;
+use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
+use SymfonyCasts\Bundle\ResetPassword\Persistence\ResetPasswordRequestRepositoryInterface;
+use SymfonyCasts\Bundle\ResetPassword\Persistence\Repository\ResetPasswordRequestRepositoryTrait;
 
 /**
  * @method PasswordResetRequest|null find($id, $lockMode = null, $lockVersion = null)
@@ -17,21 +15,26 @@ use SymfonyCasts\Bundle\ResetPassword\Persistence\Repository\PasswordResetReques
  * @method PasswordResetRequest[]    findAll()
  * @method PasswordResetRequest[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class PasswordResetRequestRepository extends ServiceEntityRepository implements PasswordResetRequestRepositoryInterface
+class PasswordResetRequestRepository extends ServiceEntityRepository implements ResetPasswordRequestRepositoryInterface
 {
-    use PasswordResetRequestRepositoryTrait;
+    use ResetPasswordRequestRepositoryTrait;
 
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, PasswordResetRequest::class);
     }
 
-    public function createPasswordResetRequest(
-        UserInterface $user,
-        \DateTimeImmutable $expiresAt,
+    public function createResetPasswordRequest(
+        object $user,
+        \DateTimeInterface $expiresAt,
         string $selector,
         string $hashedToken
-    ): PasswordResetRequestInterface {
-        // TODO: Implement createPasswordResetRequest() method.
+    ): ResetPasswordRequestInterface {
+        return new PasswordResetRequest(
+            $user,
+            $expiresAt,
+            $selector,
+            $hashedToken
+        );
     }
 }
