@@ -136,12 +136,9 @@ class ForgotPasswordController extends AbstractController
         }
 
         //Validate token using password helper
-        $partialUser = $helper->validateTokenAndFetchUser($token);
-
-        /** @var UserInterface $user */
-        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
-            'id' => $partialUser->getId(),
-        ]);
+        //@TODO what if the user entity is not User::class | Maker asks for the user entity, set the type hint to said entity in maker
+        /** @var User $user */
+        $user = $helper->validateTokenAndFetchUser($token);
 
         //Reset password after token verified
         //@TODO Move to separate method
