@@ -115,28 +115,28 @@ class ForgotPasswordController extends AbstractController
     }
 
     /**
-     * @Route("/reset/{tokenAndSelector}", name="app_reset_password")
+     * @Route("/reset/{token}", name="app_reset_password")
      */
-    public function reset(Request $request, ResetPasswordHelperInterface $helper, UserPasswordEncoderInterface $passwordEncoder, string $tokenAndSelector = null): Response
+    public function reset(Request $request, ResetPasswordHelperInterface $helper, UserPasswordEncoderInterface $passwordEncoder, string $token = null): Response
     {
         //Put token in session and redirect to self
-        if ($tokenAndSelector) {
+        if ($token) {
             // We store token in session and remove it from the URL,
             // to avoid any leak if someone get to know the URL (AJAX requests, Analytics...).
-            $this->storeTokenInSession($request, $tokenAndSelector);
+            $this->storeTokenInSession($request, $token);
 
             return $this->redirectToRoute('app_reset_password');
         }
 
         //Get token out of session storage
-        $tokenAndSelector = $this->getTokenFromSession($request);
+        $token = $this->getTokenFromSession($request);
 
-        if (!$tokenAndSelector) {
+        if (!$token) {
             throw $this->createNotFoundException();
         }
 
         //Validate token using password helper
-        $partialUser = $helper->validateTokenAndFetchUser($tokenAndSelector);
+        $partialUser = $helper->validateTokenAndFetchUser($token);
 
         /** @var UserInterface $user */
         $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
@@ -150,7 +150,7 @@ class ForgotPasswordController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // A ResetPasswordToken should be used only once, remove it.
-            $helper->removeResetRequest($tokenAndSelector);
+            $helper->removeResetRequest($token);
 
             // Encode the plain password, and set it.
             $encodedPassword = $passwordEncoder->encodePassword(
