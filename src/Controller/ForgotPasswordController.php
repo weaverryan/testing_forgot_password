@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Contract\ResetPasswordControllerTrait;
 use App\Entity\User;
 use App\Form\PasswordRequestFormType;
 use App\Form\PasswordResettingFormType;
@@ -26,6 +27,8 @@ use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
  */
 class ForgotPasswordController extends AbstractController
 {
+    use ResetPasswordControllerTrait;
+
     private const SESSION_TOKEN_KEY = 'forgot_password_token';
     private const SESSION_CAN_CHECK_EMAIL = 'forgot_password_check_email';
 
@@ -120,13 +123,14 @@ class ForgotPasswordController extends AbstractController
         if ($tokenAndSelector) {
             // We store token in session and remove it from the URL,
             // to avoid any leak if someone get to know the URL (AJAX requests, Analytics...).
-            $request->getSession()->set(self::SESSION_TOKEN_KEY, $tokenAndSelector);
+            $this->storeTokenInSession($request, $tokenAndSelector);
 
             return $this->redirectToRoute('app_reset_password');
         }
 
         //Get token out of session storage
-        $tokenAndSelector = $request->getSession()->get(self::SESSION_TOKEN_KEY);
+        $tokenAndSelector = $this->getTokenFromSession($request);
+
         if (!$tokenAndSelector) {
             throw $this->createNotFoundException();
         }
