@@ -59,7 +59,7 @@ class ForgotPasswordController extends AbstractController
         ]);
 
         // Needed to be able to access next page, app_check_email
-        $request->getSession()->set(self::SESSION_CAN_CHECK_EMAIL, true);
+        $this->setCanCheckEmailInSession($request);
 
         // Do not reveal whether a user account was found or not.
         if (!$user) {
@@ -103,11 +103,9 @@ class ForgotPasswordController extends AbstractController
     public function checkEmail(SessionInterface $session): Response
     {
         // We prevent users from directly accessing this page
-        if (!$session->get(self::SESSION_CAN_CHECK_EMAIL)) {
+        if (!$this->canCheckEmailFromSession($session)) {
             return $this->redirectToRoute('app_forgot_password_request');
         }
-
-        $session->remove(self::SESSION_CAN_CHECK_EMAIL);
 
         return $this->render('forgot_password/check_email.html.twig', [
             'tokenLifetime' => self::LIFETIME_HOURS,
