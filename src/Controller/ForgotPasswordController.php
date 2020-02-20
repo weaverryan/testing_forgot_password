@@ -20,6 +20,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordTimeHelper;
 
 /**
  * @Route("/forgot-password")
@@ -29,8 +30,15 @@ class ForgotPasswordController extends AbstractController
     private const SESSION_TOKEN_KEY = 'forgot_password_token';
     private const SESSION_CAN_CHECK_EMAIL = 'forgot_password_check_email';
 
-    /** @TODO this value should be generated/retrieved from the config... */
-    private const LIFETIME_HOURS = 1;
+    /**
+     * @var ResetPasswordHelperInterface
+     */
+    private $resetPasswordHelper;
+
+    public function __construct(ResetPasswordHelperInterface $resetPasswordHelper)
+    {
+        $this->resetPasswordHelper = $resetPasswordHelper;
+    }
 
     /**
      * @Route("/request", name="app_forgot_password_request")
@@ -107,7 +115,7 @@ class ForgotPasswordController extends AbstractController
         $session->remove(self::SESSION_CAN_CHECK_EMAIL);
 
         return $this->render('forgot_password/check_email.html.twig', [
-            'tokenLifetime' => self::LIFETIME_HOURS,
+            'tokenLifetime' => ResetPasswordTimeHelper::getFormattedSeconds($this->resetPasswordHelper->getTokenLifetime()),
         ]);
     }
 
