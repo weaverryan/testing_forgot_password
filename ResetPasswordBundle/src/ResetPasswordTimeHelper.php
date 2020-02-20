@@ -5,8 +5,9 @@ namespace SymfonyCasts\Bundle\ResetPassword;
 class ResetPasswordTimeHelper
 {
     /**
-     * @TODO WIP
-     * turn 3600 seconds into something human friendly for templates...
+     * Convert seconds into a human readable string
+     *
+     * Providing 8100 will return 2 hours 15 minutes
      */
     public static function getFormattedSeconds(int $seconds): string
     {
@@ -25,13 +26,18 @@ class ResetPasswordTimeHelper
         }
 
         if ($minutes > 0) {
-            if (!empty($time)) {
-                $time .= ' ';
-            }
-
-            $time .= "$minutes minutes";
+            $time = (self::addSpace($time)) . "$minutes minutes";
         }
 
         return $time;
+    }
+
+    private static function addSpace(string $time): string
+    {
+        if (empty($time)) {
+            return '';
+        }
+
+        return $time . ' ';
     }
 }
