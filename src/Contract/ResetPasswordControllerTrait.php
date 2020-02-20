@@ -29,10 +29,7 @@ trait ResetPasswordControllerTrait
         $request->getSession()->set($helper->getSessionTokenKey(), $token);
     }
 
-    /**
-     * @return mixed
-     */
-    private function getTokenFromSession(Request $request, ResetPasswordHelperInterface $helper)
+    private function getTokenFromSession(Request $request, ResetPasswordHelperInterface $helper): string
     {
         return $request->getSession()->get($helper->getSessionTokenKey());
     }
