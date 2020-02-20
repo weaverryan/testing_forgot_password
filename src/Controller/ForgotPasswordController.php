@@ -29,7 +29,6 @@ class ForgotPasswordController extends AbstractController
 {
     use ResetPasswordControllerTrait;
 
-    private const SESSION_TOKEN_KEY = 'forgot_password_token';
     private const SESSION_CAN_CHECK_EMAIL = 'forgot_password_check_email';
 
     /** @TODO this value should be generated/retrieved from the config... */
@@ -121,13 +120,13 @@ class ForgotPasswordController extends AbstractController
         if ($token) {
             // We store token in session and remove it from the URL,
             // to avoid any leak if someone get to know the URL (AJAX requests, Analytics...).
-            $this->storeTokenInSession($request, $token);
+            $this->storeTokenInSession($request, $helper, $token);
 
             return $this->redirectToRoute('app_reset_password');
         }
 
         //Get token out of session storage
-        $token = $this->getTokenFromSession($request);
+        $token = $this->getTokenFromSession($request, $helper);
 
         if (!$token) {
             throw $this->createNotFoundException();
