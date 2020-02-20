@@ -15,4 +15,9 @@ interface ResetPasswordHelperInterface
     public function validateTokenAndFetchUser(string $fullToken): object;
 
     public function removeResetRequest(string $fullToken): void;
+
+    /**
+     * Retrieve the configured session key used to store reset token in session during validation
+     */
+    public function getSessionTokenKey(): string;
 }

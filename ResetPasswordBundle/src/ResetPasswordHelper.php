@@ -21,6 +21,8 @@ class ResetPasswordHelper implements ResetPasswordHelperInterface
      */
     private const SELECTOR_LENGTH = 20;
 
+    private const SESSION_TOKEN_KEY = 'ResetPasswordToken';
+
     /**
      * @var ResetPasswordRequestRepositoryInterface
      */
@@ -127,6 +129,11 @@ class ResetPasswordHelper implements ResetPasswordHelperInterface
 
         $request = $this->findToken($fullToken);
         $this->repository->removeResetPasswordRequest($request);
+    }
+
+    public function getSessionTokenKey(): string
+    {
+        return self::SESSION_TOKEN_KEY;
     }
 
     private function findToken(string $token): ResetPasswordRequestInterface

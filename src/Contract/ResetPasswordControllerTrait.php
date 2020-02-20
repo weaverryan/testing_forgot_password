@@ -4,6 +4,7 @@ namespace App\Contract;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 trait ResetPasswordControllerTrait
 {
@@ -23,16 +24,16 @@ trait ResetPasswordControllerTrait
         return false;
     }
 
-    private function storeTokenInSession(Request $request, string $token): void
+    private function storeTokenInSession(Request $request, ResetPasswordHelperInterface $helper, string $token): void
     {
-        $request->getSession()->set(self::SESSION_TOKEN_KEY, $token);
+        $request->getSession()->set($helper->getSessionTokenKey(), $token);
     }
 
     /**
      * @return mixed
      */
-    private function getTokenFromSession(Request $request)
+    private function getTokenFromSession(Request $request, ResetPasswordHelperInterface $helper)
     {
-        return $request->getSession()->get(self::SESSION_TOKEN_KEY);
+        return $request->getSession()->get($helper->getSessionTokenKey());
     }
 }
