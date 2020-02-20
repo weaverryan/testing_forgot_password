@@ -15,4 +15,11 @@ interface ResetPasswordHelperInterface
     public function validateTokenAndFetchUser(string $fullToken): object;
 
     public function removeResetRequest(string $fullToken): void;
+
+    /**
+     * Get the length of time in seconds a token is valid
+     *
+     * Format with ResetPasswordTimeHelper::getFormattedSeconds()
+     */
+    public function getTokenLifetime(): int;
 }

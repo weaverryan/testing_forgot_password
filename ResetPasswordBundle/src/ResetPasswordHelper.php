@@ -129,6 +129,14 @@ class ResetPasswordHelper implements ResetPasswordHelperInterface
         $this->repository->removeResetPasswordRequest($request);
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function getTokenLifetime(): int
+    {
+        return $this->resetRequestLifetime;
+    }
+
     private function findToken(string $token): ResetPasswordRequestInterface
     {
         $selector = substr($token, 0, self::SELECTOR_LENGTH);
