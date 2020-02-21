@@ -29,8 +29,6 @@ class ForgotPasswordController extends AbstractController
 {
     use ResetPasswordControllerTrait;
 
-    private const SESSION_CAN_CHECK_EMAIL = 'forgot_password_check_email';
-
     /** @TODO this value should be generated/retrieved from the config... */
     private const LIFETIME_HOURS = 1;
 
@@ -58,7 +56,7 @@ class ForgotPasswordController extends AbstractController
         ]);
 
         // Needed to be able to access next page, app_check_email
-        $this->setCanCheckEmailInSession($request);
+        $this->setCanCheckEmailInSession($request, $passwordResetHelper);
 
         // Do not reveal whether a user account was found or not.
         if (!$user) {
@@ -99,10 +97,10 @@ class ForgotPasswordController extends AbstractController
     /**
      * @Route("/check-email", name="app_check_email")
      */
-    public function checkEmail(SessionInterface $session): Response
+    public function checkEmail(SessionInterface $session, ResetPasswordHelperInterface $passwordResetHelper): Response
     {
         // We prevent users from directly accessing this page
-        if (!$this->canCheckEmailFromSession($session)) {
+        if (!$this->isAbleToCheckEmail($session, $passwordResetHelper)) {
             return $this->redirectToRoute('app_forgot_password_request');
         }
 
