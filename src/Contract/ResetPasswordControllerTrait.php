@@ -8,15 +8,17 @@ use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 trait ResetPasswordControllerTrait
 {
-    private function setCanCheckEmailInSession(Request $request, bool $value = true): void
+    private function setCanCheckEmailInSession(Request $request, ResetPasswordHelperInterface $helper, bool $value = true): void
     {
-        $request->getSession()->set(self::SESSION_CAN_CHECK_EMAIL, $value);
+        $request->getSession()->set($helper->getSessionEmailKey(), $value);
     }
 
-    private function canCheckEmailFromSession(SessionInterface $session): bool
+    private function isAbleToCheckEmail(SessionInterface $session, ResetPasswordHelperInterface $helper): bool
     {
-        if ($session->get(self::SESSION_CAN_CHECK_EMAIL)) {
-            $session->remove(self::SESSION_CAN_CHECK_EMAIL);
+        $sessionKey = $helper->getSessionEmailKey();
+
+        if ($session->get($sessionKey)) {
+            $session->remove($sessionKey);
 
             return true;
         }
