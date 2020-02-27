@@ -69,9 +69,8 @@ class ForgotPasswordController extends AbstractController
         try {
             $resetToken = $this->resetPasswordHelper->generateResetToken($user);
         } catch (ResetPasswordExceptionInterface $e) {
-            // TODO - make this better..
-            $this->addFlash('error', sprintf(
-                'Ooops something went wrong. %s',
+            $this->addFlash('reset_password_error', \sprintf(
+                'There was a problem handling your password reset request - %s',
                 $e->getReason()
             ));
 
