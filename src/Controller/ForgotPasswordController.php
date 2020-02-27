@@ -135,7 +135,6 @@ class ForgotPasswordController extends AbstractController
         $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
 
         //Reset password after token verified
-        //@TODO Move to separate method
         $form = $this->createForm(PasswordResettingFormType::class);
         $form->handleRequest($request);
 
@@ -144,6 +143,7 @@ class ForgotPasswordController extends AbstractController
             $this->resetPasswordHelper->removeResetRequest($token);
 
             // Encode the plain password, and set it.
+            //@TODO Encode password expects a UserInterface, we are only guaranteeing an object
             $encodedPassword = $passwordEncoder->encodePassword(
                 $user,
                 $form->get('plainPassword')->getData()
