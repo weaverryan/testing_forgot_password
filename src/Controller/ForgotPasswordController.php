@@ -52,7 +52,7 @@ class ForgotPasswordController extends AbstractController
         ]);
     }
 
-    protected function processRequestForm(FormInterface $form, Request $request, MailerInterface $mailer): RedirectResponse
+    private function processRequestForm(FormInterface $form, Request $request, MailerInterface $mailer): RedirectResponse
     {
         $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
             'email' => $form->get('email')->getData(),
