@@ -127,7 +127,7 @@ class ForgotPasswordController extends AbstractController
 
         //Get token out of session storage
         $token = $this->getTokenFromSession();
-        if (!$token) {
+        if (null === $token) {
             throw $this->createNotFoundException();
         }
 
