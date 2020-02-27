@@ -18,7 +18,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
-use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 /**
@@ -77,23 +76,19 @@ class ForgotPasswordController extends AbstractController
             return $this->redirectToRoute('app_forgot_password_request');
         }
 
-        $email = $this->getEmailTemplate($user->getEmail(), $resetToken);
-        $mailer->send($email);
-
-        return $this->redirectToRoute('app_check_email');
-    }
-
-    protected function getEmailTemplate(string $emailAddress, ResetPasswordToken $resetToken): TemplatedEmail
-    {
-        return (new TemplatedEmail())
+        $email = (new TemplatedEmail())
             ->from(new Address('noreply@mydomain.com', 'Noreply'))
-            ->to($emailAddress)
+            ->to($user->getEmail())
             ->subject('Your password reset request')
             ->htmlTemplate('forgot_password/email.html.twig')
             ->context([
                 'resetToken' => $resetToken,
             ])
         ;
+
+        $mailer->send($email);
+
+        return $this->redirectToRoute('app_check_email');
     }
 
     /**
