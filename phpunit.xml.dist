@@ -19,17 +19,13 @@
         <testsuite name="Project Test Suite">
             <directory>tests</directory>
         </testsuite>
-        <testsuite name="Bundle-Tests">
-            <directory>ResetPasswordBundle/src/tests</directory>
-        </testsuite>
     </testsuites>
 
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>
-            <directory suffix=".php">ResetPasswordBundle/src</directory>
             <exclude>
-                <directory>ResetPasswordBundle/src/tests</directory>
+                <directory>reset-password-bundle</directory>
             </exclude>
         </whitelist>
     </filter>
