@@ -28,11 +28,11 @@ class ForgotPasswordController extends AbstractController
 {
     use ResetPasswordControllerTrait;
 
-    private $helper;
+    private $resetPasswordHelper;
 
-    public function __construct(ResetPasswordHelperInterface $helper)
+    public function __construct(ResetPasswordHelperInterface $resetPasswordHelper)
     {
-        $this->helper = $helper;
+        $this->resetPasswordHelper = $resetPasswordHelper;
     }
 
     /**
@@ -67,7 +67,7 @@ class ForgotPasswordController extends AbstractController
         }
 
         try {
-            $resetToken = $this->helper->generateResetToken($user);
+            $resetToken = $this->resetPasswordHelper->generateResetToken($user);
         } catch (ResetPasswordExceptionInterface $e) {
             // TODO - make this better..
             $this->addFlash('error', sprintf(
@@ -108,7 +108,7 @@ class ForgotPasswordController extends AbstractController
         }
 
         return $this->render('forgot_password/check_email.html.twig', [
-            'tokenLifetime' => $this->helper->getTokenLifetime(),
+            'tokenLifetime' => $this->resetPasswordHelper->getTokenLifetime(),
         ]);
     }
 
@@ -133,7 +133,7 @@ class ForgotPasswordController extends AbstractController
         }
 
         //Validate token using password helper
-        $user = $this->helper->validateTokenAndFetchUser($token);
+        $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
 
         //Reset password after token verified
         //@TODO Move to separate method
@@ -142,7 +142,7 @@ class ForgotPasswordController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // A ResetPasswordToken should be used only once, remove it.
-            $this->helper->removeResetRequest($token);
+            $this->resetPasswordHelper->removeResetRequest($token);
 
             // Encode the plain password, and set it.
             $encodedPassword = $passwordEncoder->encodePassword(
