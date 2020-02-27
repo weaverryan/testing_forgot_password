@@ -51,46 +51,6 @@ class ForgotPasswordController extends AbstractController
         ]);
     }
 
-    private function processRequestForm(FormInterface $form, Request $request, MailerInterface $mailer): RedirectResponse
-    {
-        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
-            'email' => $form->get('email')->getData(),
-        ]);
-
-        // Needed to be able to access next page, app_check_email
-        $this->setCanCheckEmailInSession();
-
-        // Do not reveal whether a user account was found or not.
-        if (!$user) {
-            return $this->redirectToRoute('app_check_email');
-        }
-
-        try {
-            $resetToken = $this->resetPasswordHelper->generateResetToken($user);
-        } catch (ResetPasswordExceptionInterface $e) {
-            $this->addFlash('reset_password_error', \sprintf(
-                'There was a problem handling your password reset request - %s',
-                $e->getReason()
-            ));
-
-            return $this->redirectToRoute('app_forgot_password_request');
-        }
-
-        $email = (new TemplatedEmail())
-            ->from(new Address('noreply@mydomain.com', 'Noreply'))
-            ->to($user->getEmail())
-            ->subject('Your password reset request')
-            ->htmlTemplate('forgot_password/email.html.twig')
-            ->context([
-                'resetToken' => $resetToken,
-            ])
-        ;
-
-        $mailer->send($email);
-
-        return $this->redirectToRoute('app_check_email');
-    }
-
     /**
      * @Route("/check-email", name="app_check_email")
      */
@@ -159,5 +119,45 @@ class ForgotPasswordController extends AbstractController
         return $this->render('forgot_password/reset.html.twig', [
             'resetForm' => $form->createView(),
         ]);
+    }
+
+    private function processRequestForm(FormInterface $form, Request $request, MailerInterface $mailer): RedirectResponse
+    {
+        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
+            'email' => $form->get('email')->getData(),
+        ]);
+
+        // Needed to be able to access next page, app_check_email
+        $this->setCanCheckEmailInSession();
+
+        // Do not reveal whether a user account was found or not.
+        if (!$user) {
+            return $this->redirectToRoute('app_check_email');
+        }
+
+        try {
+            $resetToken = $this->resetPasswordHelper->generateResetToken($user);
+        } catch (ResetPasswordExceptionInterface $e) {
+            $this->addFlash('reset_password_error', \sprintf(
+                'There was a problem handling your password reset request - %s',
+                $e->getReason()
+            ));
+
+            return $this->redirectToRoute('app_forgot_password_request');
+        }
+
+        $email = (new TemplatedEmail())
+            ->from(new Address('noreply@mydomain.com', 'Noreply'))
+            ->to($user->getEmail())
+            ->subject('Your password reset request')
+            ->htmlTemplate('forgot_password/email.html.twig')
+            ->context([
+                'resetToken' => $resetToken,
+            ])
+        ;
+
+        $mailer->send($email);
+
+        return $this->redirectToRoute('app_check_email');
     }
 }
