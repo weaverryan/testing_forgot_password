@@ -16,7 +16,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
@@ -26,22 +26,25 @@ use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
  */
 class ForgotPasswordController extends AbstractController
 {
-    private const SESSION_TOKEN_KEY = 'forgot_password_token';
-    private const SESSION_CAN_CHECK_EMAIL = 'forgot_password_check_email';
+    use ResetPasswordControllerTrait;
 
-    /** @TODO this value should be generated/retrieved from the config... */
-    private const LIFETIME_HOURS = 1;
+    private $helper;
+
+    public function __construct(ResetPasswordHelperInterface $helper)
+    {
+        $this->helper = $helper;
+    }
 
     /**
      * @Route("/request", name="app_forgot_password_request")
      */
-    public function request(Request $request, MailerInterface $mailer, ResetPasswordHelperInterface $passwordResetHelper): Response
+    public function request(Request $request, MailerInterface $mailer): Response
     {
         $form = $this->createForm(PasswordRequestFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            return $this->processRequestForm($form, $request, $mailer, $passwordResetHelper);
+            return $this->processRequestForm($form, $request, $mailer);
         }
 
         return $this->render('forgot_password/request.html.twig', [
@@ -49,14 +52,14 @@ class ForgotPasswordController extends AbstractController
         ]);
     }
 
-    protected function processRequestForm(FormInterface $form, Request $request, MailerInterface $mailer, ResetPasswordHelperInterface $passwordResetHelper): RedirectResponse
+    protected function processRequestForm(FormInterface $form, Request $request, MailerInterface $mailer): RedirectResponse
     {
         $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
             'email' => $form->get('email')->getData(),
         ]);
 
         // Needed to be able to access next page, app_check_email
-        $request->getSession()->set(self::SESSION_CAN_CHECK_EMAIL, true);
+        $this->setCanCheckEmailInSession();
 
         // Do not reveal whether a user account was found or not.
         if (!$user) {
@@ -64,7 +67,7 @@ class ForgotPasswordController extends AbstractController
         }
 
         try {
-            $resetToken = $passwordResetHelper->generateResetToken($user);
+            $resetToken = $this->helper->generateResetToken($user);
         } catch (ResetPasswordExceptionInterface $e) {
             // TODO - make this better..
             $this->addFlash('error', sprintf(
@@ -100,44 +103,37 @@ class ForgotPasswordController extends AbstractController
     public function checkEmail(SessionInterface $session): Response
     {
         // We prevent users from directly accessing this page
-        if (!$session->get(self::SESSION_CAN_CHECK_EMAIL)) {
+        if (!$this->canCheckEmail()) {
             return $this->redirectToRoute('app_forgot_password_request');
         }
 
-        $session->remove(self::SESSION_CAN_CHECK_EMAIL);
-
         return $this->render('forgot_password/check_email.html.twig', [
-            'tokenLifetime' => self::LIFETIME_HOURS,
+            'tokenLifetime' => $this->helper->getTokenLifetime(),
         ]);
     }
 
     /**
-     * @Route("/reset/{tokenAndSelector}", name="app_reset_password")
+     * @Route("/reset/{token}", name="app_reset_password")
      */
-    public function reset(Request $request, ResetPasswordHelperInterface $helper, UserPasswordEncoderInterface $passwordEncoder, string $tokenAndSelector = null): Response
+    public function reset(Request $request, UserPasswordEncoderInterface $passwordEncoder, string $token = null): Response
     {
         //Put token in session and redirect to self
-        if ($tokenAndSelector) {
+        if ($token) {
             // We store token in session and remove it from the URL,
             // to avoid any leak if someone get to know the URL (AJAX requests, Analytics...).
-            $request->getSession()->set(self::SESSION_TOKEN_KEY, $tokenAndSelector);
+            $this->storeTokenInSession($token);
 
             return $this->redirectToRoute('app_reset_password');
         }
 
         //Get token out of session storage
-        $tokenAndSelector = $request->getSession()->get(self::SESSION_TOKEN_KEY);
-        if (!$tokenAndSelector) {
+        $token = $this->getTokenFromSession();
+        if (!$token) {
             throw $this->createNotFoundException();
         }
 
         //Validate token using password helper
-        $partialUser = $helper->validateTokenAndFetchUser($tokenAndSelector);
-
-        /** @var UserInterface $user */
-        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
-            'id' => $partialUser->getId(),
-        ]);
+        $user = $this->helper->validateTokenAndFetchUser($token);
 
         //Reset password after token verified
         //@TODO Move to separate method
@@ -146,7 +142,7 @@ class ForgotPasswordController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // A ResetPasswordToken should be used only once, remove it.
-            $helper->removeResetRequest($tokenAndSelector);
+            $this->helper->removeResetRequest($token);
 
             // Encode the plain password, and set it.
             $encodedPassword = $passwordEncoder->encodePassword(
