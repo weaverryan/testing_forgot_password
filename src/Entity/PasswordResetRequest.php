@@ -11,10 +11,7 @@ use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
  */
 class PasswordResetRequest implements ResetPasswordRequestInterface
 {
-    //@TODO ugly
-    use ResetPasswordRequestTrait {
-        ResetPasswordRequestTrait::__construct as private __traitConstruct;
-    }
+    use ResetPasswordRequestTrait;
 
     /**
      * @ORM\Id()
@@ -31,9 +28,7 @@ class PasswordResetRequest implements ResetPasswordRequestInterface
     public function __construct(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
     {
         $this->user = $user;
-
-        //@TODO ugly
-        $this->__traitConstruct($expiresAt, $selector, $hashedToken);
+        $this->initialize($expiresAt, $selector, $hashedToken);
     }
 
     public function getUser(): object

@@ -1,0 +1,3 @@
+[submodule "reset-password-bundle"]
+	path = reset-password-bundle
+	url = https://github.com/symfonycasts/reset-password-bundle.git

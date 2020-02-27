@@ -8,12 +8,10 @@
 >
     <projectFiles>
         <directory name="src"/>
-        <directory name="ResetPasswordBundle/src"/>
         <ignoreFiles>
             <file name="src/Kernel.php" />
             <directory name="vendor"/>
-            <directory name="ResetPasswordBundle/src/DependencyInjection" />
-            <directory name="ResetPasswordBundle/src/Resources" />
+            <directory name="reset-password-bundle" />
         </ignoreFiles>
     </projectFiles>
 
