@@ -14,3 +14,7 @@
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
+
+src/Controller/X*.php
+src/Entity/X*.php
+src/Repository/X*.php

@@ -98,18 +98,36 @@ class ResetPasswordMaker extends AbstractMaker
         ConsoleStyle $io,
         Generator $generator
     ) {
-//        $userClass = $input->getArgument('user-class');
-        $controllerClassNameDetails = $generator->createClassNameDetails(
-            'ResetPasswordController',
-            'Controller\\'
-        );
-        $requestClassNameDetails = $generator->createClassNameDetails(
-            'ResetPasswordRequest',
+        $userClass = $input->getArgument('user-class');
+        $userClassNameDetails = $generator->createClassNameDetails(
+            '\\'.$userClass,
             'Entity\\'
         );
+
+        $controllerClassNameDetails = $generator->createClassNameDetails(
+            'XResetPasswordController',
+            'Controller\\'
+        );
+
+        $requestClassNameDetails = $generator->createClassNameDetails(
+            'XResetPasswordRequest',
+            'Entity\\'
+        );
+
         $repositoryClassNameDetails = $generator->createClassNameDetails(
-            'ResetPasswordRequestRepository',
+            'XResetPasswordRequestRepository',
             'Repository\\'
         );
+
+        $generator->generateClass(
+            $requestClassNameDetails->getFullName(),
+            'src/Resource/templates/ResetPasswordRequest.tpl.php',
+            [
+                'repository_class_name' => $repositoryClassNameDetails->getFullName(),
+                'user_full_class_name' => $userClassNameDetails->getFullName()
+            ]
+        );
+
+        $generator->writeChanges();
     }
 }
