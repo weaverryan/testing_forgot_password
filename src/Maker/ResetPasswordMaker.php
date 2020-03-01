@@ -128,6 +128,15 @@ class ResetPasswordMaker extends AbstractMaker
             ]
         );
 
+        $generator->generateClass(
+            $repositoryClassNameDetails->getFullName(),
+            'src/Resource/templates/ResetPasswordRequestRepository.tpl.php',
+            [
+                'request_class_full_name' => $requestClassNameDetails->getFullName(),
+                'request_class_name' => $requestClassNameDetails->getShortName()
+            ]
+        );
+
         $generator->writeChanges();
     }
 }
