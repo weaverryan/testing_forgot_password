@@ -98,6 +98,18 @@ class ResetPasswordMaker extends AbstractMaker
         ConsoleStyle $io,
         Generator $generator
     ) {
-        $userClass = $input->getArgument('user-class');
+//        $userClass = $input->getArgument('user-class');
+        $controllerClassNameDetails = $generator->createClassNameDetails(
+            'ResetPasswordController',
+            'Controller\\'
+        );
+        $requestClassNameDetails = $generator->createClassNameDetails(
+            'ResetPasswordRequest',
+            'Entity\\'
+        );
+        $repositoryClassNameDetails = $generator->createClassNameDetails(
+            'ResetPasswordRequestRepository',
+            'Repository\\'
+        );
     }
 }
