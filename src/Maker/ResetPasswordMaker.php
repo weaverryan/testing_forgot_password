@@ -52,7 +52,7 @@ class ResetPasswordMaker extends AbstractMaker
         // initialize arguments & commands that are internal (i.e. meant only to be asked)
         $command
             ->addArgument('user-class')
-            ->addArgument('email-field')
+//            ->addArgument('email-field')
             ->addArgument('email-getter')
             ->addArgument('password-setter')
         ;
@@ -79,10 +79,10 @@ class ResetPasswordMaker extends AbstractMaker
 
         $io->text(sprintf('Implementing forgotten password for <info>%s</info>', $userClass));
 
-        $input->setArgument(
-            'email-field',
-            $interactiveSecurityHelper->guessEmailField($io, $userClass)
-        );
+//        $input->setArgument(
+//            'email-field',
+//            $interactiveSecurityHelper->guessEmailField($io, $userClass)
+//        );
         $input->setArgument(
             'email-getter',
             $interactiveSecurityHelper->guessEmailGetter($io, $userClass)
@@ -117,6 +117,22 @@ class ResetPasswordMaker extends AbstractMaker
         $repositoryClassNameDetails = $generator->createClassNameDetails(
             'XResetPasswordRequestRepository',
             'Repository\\'
+        );
+
+        $generator->generateController(
+            $controllerClassNameDetails->getFullName(),
+            'src/Resource/templates/ResetPasswordController.tpl.php',
+            [
+                'user_full_class_name' => $userClassNameDetails->getFullName(),
+                'user_class_name' => $userClassNameDetails->getShortName(),
+                //@TODO set real class names
+                'request_form_type_full_class_name' => 'App\Some\Full\Class',
+                'request_form_type_class_name' => 'SomeClass',
+                'reset_form_type_full_class_name' => 'App\Some\Full\Class',
+                'reset_form_type_class_name' => 'SomeClass',
+                'password_setter' => $input->getArgument('password-setter'),
+                'email_getter' => $input->getArgument('email-getter')
+            ]
         );
 
         $generator->generateClass(
