@@ -119,17 +119,26 @@ class ResetPasswordMaker extends AbstractMaker
             'Repository\\'
         );
 
+        $requestFormTypeClassNameDetails = $generator->createClassNameDetails(
+            'XResetPasswordRequestFormType',
+            'Form\\'
+        );
+
+        $resetFormTypeClassNameDetails = $generator->createClassNameDetails(
+            'XResetPasswordResetFormType',
+            'Form\\'
+        );
+
         $generator->generateController(
             $controllerClassNameDetails->getFullName(),
             'src/Resource/templates/ResetPasswordController.tpl.php',
             [
                 'user_full_class_name' => $userClassNameDetails->getFullName(),
                 'user_class_name' => $userClassNameDetails->getShortName(),
-                //@TODO set real class names
-                'request_form_type_full_class_name' => 'App\Some\Full\Class',
-                'request_form_type_class_name' => 'SomeClass',
-                'reset_form_type_full_class_name' => 'App\Some\Full\Class',
-                'reset_form_type_class_name' => 'SomeClass',
+                'request_form_type_full_class_name' => $requestFormTypeClassNameDetails->getFullName(),
+                'request_form_type_class_name' => $requestFormTypeClassNameDetails->getShortName(),
+                'reset_form_type_full_class_name' => $resetFormTypeClassNameDetails->getFullName(),
+                'reset_form_type_class_name' => $resetFormTypeClassNameDetails->getShortName(),
                 'password_setter' => $input->getArgument('password-setter'),
                 'email_getter' => $input->getArgument('email-getter')
             ]
@@ -151,6 +160,16 @@ class ResetPasswordMaker extends AbstractMaker
                 'request_class_full_name' => $requestClassNameDetails->getFullName(),
                 'request_class_name' => $requestClassNameDetails->getShortName()
             ]
+        );
+
+        $generator->generateClass(
+            $requestFormTypeClassNameDetails->getFullName(),
+            'src/Resource/templates/ResetPasswordRequestFormType.tpl.php'
+        );
+
+        $generator->generateClass(
+            $resetFormTypeClassNameDetails->getFullName(),
+            'src/Resource/templates/ResetPasswordResetFormType.tpl.php'
         );
 
         $generator->writeChanges();
