@@ -172,6 +172,30 @@ class ResetPasswordMaker extends AbstractMaker
             'src/Resource/templates/ResetPasswordResetFormType.tpl.php'
         );
 
+        $generator->generateTemplate(
+            'reset_password/check_email.html.twig',
+            'src/Resource/templates/twig_check_email.tpl.php',
+            []
+        );
+
+        $generator->generateTemplate(
+            'reset_password/email.html.twig',
+            'src/Resource/templates/twig_email.tpl.php',
+            []
+        );
+
+        $generator->generateTemplate(
+            'reset_password/request.html.twig',
+            'src/Resource/templates/twig_request.tpl.php',
+            []
+        );
+
+        $generator->generateTemplate(
+            'reset_password/reset.html.twig',
+            'src/Resource/templates/twig_reset.tpl.php',
+            []
+        );
+
         $generator->writeChanges();
     }
 }
