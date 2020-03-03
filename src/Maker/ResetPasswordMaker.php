@@ -19,6 +19,9 @@ use SymfonyCasts\Bundle\ResetPassword\SymfonyCastsResetPasswordBundle;
 class ResetPasswordMaker extends AbstractMaker
 {
     private $container;
+    /**
+     * @var FileManager
+     */
     private $fileManager;
 
     public function __construct(ContainerInterface $container)
@@ -49,6 +52,17 @@ class ResetPasswordMaker extends AbstractMaker
 
     public function interact(InputInterface $input, ConsoleStyle $io, Command $command)
     {
+        $required[] = 'A User Entity has been created.';
+        $required[] = 'The user entity contains an email property.';
+        $required[] = 'A User repository exists for the user entity.';
+        $io->text($required);
+
+        $ready = $io->confirm('Are all of the above true?');
+
+        if (!$ready) {
+            $io->writeln('A user entity needs to be created first, try running make:user');
+            exit();
+        }
         // initialize arguments & commands that are internal (i.e. meant only to be asked)
         $command
             ->addArgument('user-class')
@@ -161,6 +175,20 @@ class ResetPasswordMaker extends AbstractMaker
                 'request_class_name' => $requestClassNameDetails->getShortName()
             ]
         );
+
+        $this->fileManager = $this->container->get('maker.file_manager');
+        if (!$this->fileManager->fileExists($path = 'config/packages/reset_password.yaml')) {
+            throw new RuntimeCommandException(sprintf('The file "%s" does not exist. This command needs that file to accurately build the reset password config.', $path));
+        }
+
+        $manipulator = new YamlSourceManipulator($this->fileManager->getFileContents($path));
+        $data = $manipulator->getData();
+
+        $data['symfonycasts_reset_password'] = ['request_password_repository' => $repositoryClassNameDetails->getFullName()];
+
+        $manipulator->setData($data);
+
+        $generator->dumpFile($path, $manipulator->getContents());
 
         $generator->generateClass(
             $requestFormTypeClassNameDetails->getFullName(),
