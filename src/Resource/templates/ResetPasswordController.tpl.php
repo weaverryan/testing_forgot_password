@@ -11,7 +11,6 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
@@ -54,7 +53,7 @@ class <?= $class_name ?> extends AbstractController
     /**
      * @Route("/check-email", name="app_check_email")
      */
-    public function checkEmail(SessionInterface $session): Response
+    public function checkEmail(): Response
     {
         // We prevent users from directly accessing this page
         if (!$this->canCheckEmail()) {
@@ -142,6 +141,7 @@ class <?= $class_name ?> extends AbstractController
         }
 
         $email = (new TemplatedEmail())
+            // @TODO - Set correct email address and name
             ->from(new Address('noreply@mydomain.com', 'Noreply'))
             ->to($user-><?= $email_getter ?>())
             ->subject('Your password reset request')
