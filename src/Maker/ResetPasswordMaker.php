@@ -60,13 +60,13 @@ class ResetPasswordMaker extends AbstractMaker
         $ready = $io->confirm('Are all of the above true?');
 
         if (!$ready) {
-            $io->writeln('A user entity needs to be created first, try running make:user');
+            $io->writeln('Try running "bin/console make:user" to create the required user objects.');
             exit();
         }
         // initialize arguments & commands that are internal (i.e. meant only to be asked)
         $command
             ->addArgument('user-class')
-//            ->addArgument('email-field')
+            ->addArgument('email-property-name')
             ->addArgument('email-getter')
             ->addArgument('password-setter')
         ;
@@ -93,10 +93,10 @@ class ResetPasswordMaker extends AbstractMaker
 
         $io->text(sprintf('Implementing forgotten password for <info>%s</info>', $userClass));
 
-//        $input->setArgument(
-//            'email-field',
-//            $interactiveSecurityHelper->guessEmailField($io, $userClass)
-//        );
+        $input->setArgument(
+            'email-property-name',
+            $interactiveSecurityHelper->guessEmailField($io, $userClass)
+        );
         $input->setArgument(
             'email-getter',
             $interactiveSecurityHelper->guessEmailGetter($io, $userClass)
@@ -192,7 +192,10 @@ class ResetPasswordMaker extends AbstractMaker
 
         $generator->generateClass(
             $requestFormTypeClassNameDetails->getFullName(),
-            'src/Resource/templates/ResetPasswordRequestFormType.tpl.php'
+            'src/Resource/templates/ResetPasswordRequestFormType.tpl.php',
+            [
+                'email_field' => $input->getArgument('email-property-name')
+            ]
         );
 
         $generator->generateClass(
@@ -215,7 +218,9 @@ class ResetPasswordMaker extends AbstractMaker
         $generator->generateTemplate(
             'reset_password/request.html.twig',
             'src/Resource/templates/twig_request.tpl.php',
-            []
+            [
+                'email_field' => $input->getArgument('email-property-name')
+            ]
         );
 
         $generator->generateTemplate(
