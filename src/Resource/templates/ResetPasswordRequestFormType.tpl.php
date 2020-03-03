@@ -13,7 +13,7 @@ class <?= $class_name ?> extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email', EmailType::class, [
+            ->add('<?= $email_field ?>', EmailType::class, [
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter your email',
