@@ -75,7 +75,7 @@ class ResetPasswordMaker extends AbstractMaker
 
         $this->fileManager = $this->container->get('maker.file_manager');
         if (!$this->fileManager->fileExists($path = 'config/packages/security.yaml')) {
-            throw new RuntimeCommandException('The file "config/packages/security.yaml" does not exist. This command needs that file to accurately build the forgotten password form.');
+            throw new RuntimeCommandException('The file "config/packages/security.yaml" does not exist. This command needs that file to accurately build the reset password form.');
         }
 
         $manipulator = new YamlSourceManipulator($this->fileManager->getFileContents($path));
@@ -91,7 +91,7 @@ class ResetPasswordMaker extends AbstractMaker
             )
         );
 
-        $io->text(sprintf('Implementing forgotten password for <info>%s</info>', $userClass));
+        $io->text(sprintf('Implementing reset password for <info>%s</info>', $userClass));
 
         $input->setArgument(
             'email-property-name',
@@ -119,33 +119,35 @@ class ResetPasswordMaker extends AbstractMaker
         );
 
         $controllerClassNameDetails = $generator->createClassNameDetails(
-            'XResetPasswordController',
+            'ResetPasswordController',
             'Controller\\'
         );
 
         $requestClassNameDetails = $generator->createClassNameDetails(
-            'XResetPasswordRequest',
+            'ResetPasswordRequest',
             'Entity\\'
         );
 
         $repositoryClassNameDetails = $generator->createClassNameDetails(
-            'XResetPasswordRequestRepository',
+            'ResetPasswordRequestRepository',
             'Repository\\'
         );
 
         $requestFormTypeClassNameDetails = $generator->createClassNameDetails(
-            'XResetPasswordRequestFormType',
+            'ResetPasswordRequestFormType',
             'Form\\'
         );
 
         $resetFormTypeClassNameDetails = $generator->createClassNameDetails(
-            'XResetPasswordResetFormType',
+            'ResetPasswordResetFormType',
             'Form\\'
         );
 
+        $templatePath = 'src/Resource/templates/';
+
         $generator->generateController(
             $controllerClassNameDetails->getFullName(),
-            'src/Resource/templates/ResetPasswordController.tpl.php',
+            $templatePath.'ResetPasswordController.tpl.php',
             [
                 'user_full_class_name' => $userClassNameDetails->getFullName(),
                 'user_class_name' => $userClassNameDetails->getShortName(),
@@ -160,7 +162,7 @@ class ResetPasswordMaker extends AbstractMaker
 
         $generator->generateClass(
             $requestClassNameDetails->getFullName(),
-            'src/Resource/templates/ResetPasswordRequest.tpl.php',
+            $templatePath.'ResetPasswordRequest.tpl.php',
             [
                 'repository_class_name' => $repositoryClassNameDetails->getFullName(),
                 'user_full_class_name' => $userClassNameDetails->getFullName()
@@ -169,7 +171,7 @@ class ResetPasswordMaker extends AbstractMaker
 
         $generator->generateClass(
             $repositoryClassNameDetails->getFullName(),
-            'src/Resource/templates/ResetPasswordRequestRepository.tpl.php',
+            $templatePath.'ResetPasswordRequestRepository.tpl.php',
             [
                 'request_class_full_name' => $requestClassNameDetails->getFullName(),
                 'request_class_name' => $requestClassNameDetails->getShortName()
@@ -192,7 +194,7 @@ class ResetPasswordMaker extends AbstractMaker
 
         $generator->generateClass(
             $requestFormTypeClassNameDetails->getFullName(),
-            'src/Resource/templates/ResetPasswordRequestFormType.tpl.php',
+            $templatePath.'ResetPasswordRequestFormType.tpl.php',
             [
                 'email_field' => $input->getArgument('email-property-name')
             ]
@@ -200,24 +202,24 @@ class ResetPasswordMaker extends AbstractMaker
 
         $generator->generateClass(
             $resetFormTypeClassNameDetails->getFullName(),
-            'src/Resource/templates/ResetPasswordResetFormType.tpl.php'
+            $templatePath.'ResetPasswordResetFormType.tpl.php'
         );
 
         $generator->generateTemplate(
             'reset_password/check_email.html.twig',
-            'src/Resource/templates/twig_check_email.tpl.php',
+            $templatePath.'twig_check_email.tpl.php',
             []
         );
 
         $generator->generateTemplate(
             'reset_password/email.html.twig',
-            'src/Resource/templates/twig_email.tpl.php',
+            $templatePath.'twig_email.tpl.php',
             []
         );
 
         $generator->generateTemplate(
             'reset_password/request.html.twig',
-            'src/Resource/templates/twig_request.tpl.php',
+            $templatePath.'twig_request.tpl.php',
             [
                 'email_field' => $input->getArgument('email-property-name')
             ]
@@ -225,7 +227,7 @@ class ResetPasswordMaker extends AbstractMaker
 
         $generator->generateTemplate(
             'reset_password/reset.html.twig',
-            'src/Resource/templates/twig_reset.tpl.php',
+            $templatePath.'twig_reset.tpl.php',
             []
         );
 
