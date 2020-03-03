@@ -52,15 +52,16 @@ class ResetPasswordMaker extends AbstractMaker
 
     public function interact(InputInterface $input, ConsoleStyle $io, Command $command)
     {
-        $required[] = 'A User Entity has been created.';
-        $required[] = 'The user entity contains an email property.';
-        $required[] = 'A User repository exists for the user entity.';
+        $io->writeln('<question>- Reset Password Bundle Requirements -</>');
+        $required[] = '1) A user entity has been created.';
+        $required[] = '2) The user entity contains an email property with getter method.';
+        $required[] = '3) A user repository exists for the user entity.';
         $io->text($required);
 
         $ready = $io->confirm('Are all of the above true?');
 
         if (!$ready) {
-            $io->writeln('Try running "bin/console make:user" to create the required user objects.');
+            $io->writeln('<error>Try running "bin/console make:user" to create the required user objects.</>');
             exit();
         }
         // initialize arguments & commands that are internal (i.e. meant only to be asked)
