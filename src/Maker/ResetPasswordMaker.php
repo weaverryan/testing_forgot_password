@@ -228,5 +228,16 @@ class ResetPasswordMaker extends AbstractMaker
         );
 
         $generator->writeChanges();
+
+        $this->successMessage($io);
     }
+
+    private function successMessage(ConsoleStyle $io): void
+    {
+        $closing[] = 'Check the login redirect route is correct in <fg=yellow>ResetPasswordController::reset()</>';
+        $closing[] = 'Set correct "from" email address and name values for the email template in <fg=yellow>ResetPasswordController::processRequestForm()</>';
+        $closing[] = 'Ensure <fg=yellow>MAILER_DSN</> has the correct host for sending emails.';
+        $io->text($closing);
+    }
+
 }
