@@ -42,7 +42,10 @@ class ResetPasswordController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            return $this->processRequestForm($form, $mailer);
+            return $this->processSendingPasswordResetEmail(
+                $form->get('email')->getData(),
+                $mailer
+            );
         }
 
         return $this->render('reset_password/request.html.twig', [
@@ -78,21 +81,19 @@ class ResetPasswordController extends AbstractController
             return $this->redirectToRoute('app_reset_password');
         }
 
-        //Get token out of session storage
         $token = $this->getTokenFromSession();
         if (null === $token) {
             throw $this->createNotFoundException();
         }
 
-        //Validate token using password helper
         $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
 
-        //Reset password after token verified
+        // the token is valid: allow the user to change their password
         $form = $this->createForm(ResetPasswordResetFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // A ResetPasswordToken should be used only once, remove it.
+            // A password reset token should be used only once, remove it.
             $this->resetPasswordHelper->removeResetRequest($token);
 
             // Encode the plain password, and set it.
@@ -113,10 +114,10 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    private function processRequestForm(FormInterface $form, MailerInterface $mailer): RedirectResponse
+    private function processSendingPasswordResetEmail(string $email, MailerInterface $mailer): RedirectResponse
     {
         $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
-            'email' => $form->get('email')->getData(),
+            'email' => $email,
         ]);
 
         // Marks that you are allowed to see the app_check_email page
