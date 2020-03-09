@@ -100,7 +100,6 @@ class <?= $class_name ?> extends AbstractController
             $this->resetPasswordHelper->removeResetRequest($token);
 
             // Encode the plain password, and set it.
-            //@TODO Encode password expects a UserInterface, we are only guaranteeing an object
             $encodedPassword = $passwordEncoder->encodePassword(
                 $user,
                 $form->get('plainPassword')->getData()
@@ -118,10 +117,10 @@ class <?= $class_name ?> extends AbstractController
         ]);
     }
 
-    private function processSendingPasswordResetEmail(string $email, MailerInterface $mailer): RedirectResponse
+    private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer): RedirectResponse
     {
         $user = $this->getDoctrine()->getRepository(<?= $user_class_name ?>::class)->findOneBy([
-            'email' => $email,
+            'email' => $emailFormData,
         ]);
 
         // Needed to be able to access next page, app_check_email
