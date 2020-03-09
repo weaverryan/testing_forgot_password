@@ -7,7 +7,6 @@ use <?= $request_form_type_full_class_name ?>;
 use <?= $reset_form_type_full_class_name ?>;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,7 +47,7 @@ class <?= $class_name ?> extends AbstractController
             );
         }
 
-        return $this->render('forgot_password/request.html.twig', [
+        return $this->render('reset_password/request.html.twig', [
             'requestForm' => $form->createView(),
         ]);
     }
@@ -63,7 +62,7 @@ class <?= $class_name ?> extends AbstractController
             return $this->redirectToRoute('app_forgot_password_request');
         }
 
-        return $this->render('forgot_password/check_email.html.twig', [
+        return $this->render('reset_password/check_email.html.twig', [
             'tokenLifetime' => $this->resetPasswordHelper->getTokenLifetime(),
         ]);
     }
@@ -112,7 +111,7 @@ class <?= $class_name ?> extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        return $this->render('forgot_password/reset.html.twig', [
+        return $this->render('reset_password/reset.html.twig', [
             'resetForm' => $form->createView(),
         ]);
     }
@@ -147,7 +146,7 @@ class <?= $class_name ?> extends AbstractController
             ->from(new Address('noreply@mydomain.com', 'Noreply'))
             ->to($user-><?= $email_getter ?>())
             ->subject('Your password reset request')
-            ->htmlTemplate('forgot_password/email.html.twig')
+            ->htmlTemplate('reset_password/email.html.twig')
             ->context([
                 'resetToken' => $resetToken,
             ])
