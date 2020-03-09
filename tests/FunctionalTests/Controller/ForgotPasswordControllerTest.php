@@ -19,7 +19,7 @@ class ForgotPasswordControllerTest extends WebTestCase
      */
     public function showsResetRequestForm(): void
     {
-        $this->makeRequest('/reset-password/request');
+        $this->makeRequest('/reset-password');
 
         self::assertResponseIsSuccessful();
     }
@@ -29,8 +29,8 @@ class ForgotPasswordControllerTest extends WebTestCase
      */
     public function onSubmitRedirectToEmailNotification(): void
     {
-        $client = $this->makeRequest('/reset-password/request');
-        $client->submitForm('Send e-mail', [
+        $client = $this->makeRequest('/reset-password');
+        $client->submitForm('Send password reset email', [
             'reset_password_request_form[email]' => 'jr@rushlow.dev'
         ]);
 
@@ -42,19 +42,19 @@ class ForgotPasswordControllerTest extends WebTestCase
      */
     public function errorDisplayedWhenThrottleLimitReached(): void
     {
-        $client = $this->makeRequest('/reset-password/request');
-        $client->submitForm('Send e-mail', [
+        $client = $this->makeRequest('/reset-password');
+        $client->submitForm('Send password reset email', [
             'reset_password_request_form[email]' => 'jr@rushlow.dev'
         ]);
 
         $client->followRedirects();
-        $client->request('GET', '/reset-password/request');
+        $client->request('GET', '/reset-password');
 
-        $crawler = $client->submitForm('Send e-mail', [
+        $crawler = $client->submitForm('Send password reset email', [
             'reset_password_request_form[email]' => 'jr@rushlow.dev'
         ]);
 
-        self::assertCount(1, $crawler->filter('.flash-error'));
+        self::assertCount(1, $crawler->filter('.alert-danger'));
     }
 
     /**
@@ -62,8 +62,8 @@ class ForgotPasswordControllerTest extends WebTestCase
      */
     public function successfulRequestSendsEmail(): void
     {
-        $client = $this->makeRequest('/reset-password/request');
-        $client->submitForm('Send e-mail', [
+        $client = $this->makeRequest('/reset-password');
+        $client->submitForm('Send password reset email', [
             'reset_password_request_form[email]' => 'jr@rushlow.dev'
         ]);
 
@@ -75,8 +75,8 @@ class ForgotPasswordControllerTest extends WebTestCase
      */
     public function emailContainsValidResetToken(): void
     {
-        $client = $this->makeRequest('/reset-password/request');
-        $client->submitForm('Send e-mail', [
+        $client = $this->makeRequest('/reset-password');
+        $client->submitForm('Send password reset email', [
             'reset_password_request_form[email]' => 'jr@rushlow.dev'
         ]);
 
