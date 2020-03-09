@@ -7,7 +7,6 @@ use App\Form\ResetPasswordRequestFormType;
 use App\Form\ResetPasswordResetFormType;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,7 +33,7 @@ class ResetPasswordController extends AbstractController
     }
 
     /**
-     * @Route("/request", name="app_forgot_password_request")
+     * @Route("/", name="app_forgot_password_request")
      */
     public function request(Request $request, MailerInterface $mailer): Response
     {
@@ -42,7 +41,10 @@ class ResetPasswordController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            return $this->processRequestForm($form, $request, $mailer);
+            return $this->processSendingPasswordResetEmail(
+                $form->get('email')->getData(),
+                $mailer
+            );
         }
 
         return $this->render('reset_password/request.html.twig', [
@@ -114,10 +116,10 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    private function processRequestForm(FormInterface $form, Request $request, MailerInterface $mailer): RedirectResponse
+    private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer): RedirectResponse
     {
         $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
-            'email' => $form->get('email')->getData(),
+            'email' => $emailFormData,
         ]);
 
         // Needed to be able to access next page, app_check_email
