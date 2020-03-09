@@ -34,7 +34,7 @@ class <?= $class_name ?> extends AbstractController
     }
 
     /**
-     * @Route("/request", name="app_forgot_password_request")
+     * @Route("/", name="app_forgot_password_request")
      */
     public function request(Request $request, MailerInterface $mailer): Response
     {
@@ -42,7 +42,10 @@ class <?= $class_name ?> extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            return $this->processRequestForm($form, $request, $mailer);
+            return $this->processSendingPasswordResetEmail(
+                $form->get('email')->getData(),
+                $mailer
+            );
         }
 
         return $this->render('forgot_password/request.html.twig', [
@@ -115,10 +118,10 @@ class <?= $class_name ?> extends AbstractController
         ]);
     }
 
-    private function processRequestForm(FormInterface $form, Request $request, MailerInterface $mailer): RedirectResponse
+    private function processSendingPasswordResetEmail(string $email, MailerInterface $mailer): RedirectResponse
     {
         $user = $this->getDoctrine()->getRepository(<?= $user_class_name ?>::class)->findOneBy([
-            'email' => $form->get('email')->getData(),
+            'email' => $email,
         ]);
 
         // Needed to be able to access next page, app_check_email
