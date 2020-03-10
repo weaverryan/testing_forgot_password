@@ -116,8 +116,7 @@ class <?= $class_name ?> extends AbstractController
             // The session is cleaned up after the password has been changed.
             $this->cleanSessionAfterReset();
 
-            // @TODO: please check the login route
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('<?= $success_redirect_route ?>');
         }
 
         return $this->render('reset_password/reset.html.twig', [

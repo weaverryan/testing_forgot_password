@@ -66,6 +66,7 @@ class ResetPasswordMaker extends AbstractMaker
         $command
             ->addArgument('from-email-address', InputArgument::REQUIRED)
             ->addArgument('from-email-name', InputArgument::REQUIRED)
+            ->addArgument('controller-reset-success-redirect', InputArgument::REQUIRED)
             ->addArgument('user-class')
             ->addArgument('email-property-name')
             ->addArgument('email-getter')
@@ -115,6 +116,14 @@ class ResetPasswordMaker extends AbstractMaker
                 $io,
                 $providersData,
                 'Enter the User class that should be used with the "forgotten password" feature (e.g. <fg=yellow>App\\Entity\\User</>)'
+            )
+        );
+
+        $io->comment('<fg=yellow>A named route is required for redirection after a successful reset. Even routes that do not yet exist can be used here.</>');
+        $input->setArgument('controller-reset-success-redirect', $io->ask(
+            'After the users password has been reset, where should the user be redirect to?',
+            'app_home',
+            [Validator::class, 'notBlank']
             )
         );
 
@@ -183,6 +192,7 @@ class ResetPasswordMaker extends AbstractMaker
                 'reset_form_type_full_class_name' => $changePasswordFormTypeClassNameDetails->getFullName(),
                 'reset_form_type_class_name' => $changePasswordFormTypeClassNameDetails->getShortName(),
                 'password_setter' => $input->getArgument('password-setter'),
+                'success_redirect_route' => $input->getArgument('controller-reset-success-redirect'),
                 'from_email' => $input->getArgument('from-email-address'),
                 'from_email_name' => $input->getArgument('from-email-name'),
                 'email_getter' => $input->getArgument('email-getter')
@@ -262,12 +272,14 @@ class ResetPasswordMaker extends AbstractMaker
 
         $generator->writeChanges();
 
-        $this->successMessage($io);
+        $this->successMessage($input, $io);
     }
 
-    private function successMessage(ConsoleStyle $io): void
+    private function successMessage(InputInterface $input, ConsoleStyle $io): void
     {
-        $closing[] = 'Check the login redirect route is correct in <fg=yellow>ResetPasswordController::reset()</>';
+        $closing[] = "\n";
+        $closing[] = sprintf('Users will be redirect to <fg=yellow>%s</> after a password reset is successfully completed.', $input->getArgument('controller-reset-success-redirect'));
+        $closing[] = 'The route can be changed later in ResetPasswordController::reset()';
         $closing[] = 'Set correct "from" email address and name values for the email template in <fg=yellow>ResetPasswordController::processRequestForm()</>';
         $closing[] = 'Ensure <fg=yellow>MAILER_DSN</> has the correct host for sending emails.';
         $io->text($closing);
