@@ -139,8 +139,8 @@ class <?= $class_name ?> extends AbstractController
         }
 
         $email = (new TemplatedEmail())
-            // @TODO - Set correct email address and name
-            ->from(new Address('noreply@mydomain.com', 'Noreply'))
+            <?php if (null === $from_email || null === $from_email_name) echo '// @TODO - Set correct email address and name'."\n"; ?>
+            ->from(new Address('<?= $from_email ?>', '<?= $from_email_name ?>'))
             ->to($user-><?= $email_getter ?>())
             ->subject('Your password reset request')
             ->htmlTemplate('reset_password/email.html.twig')
