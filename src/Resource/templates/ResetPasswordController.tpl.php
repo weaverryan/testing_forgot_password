@@ -104,6 +104,9 @@ class <?= $class_name ?> extends AbstractController
             $user-><?= $password_setter ?>($encodedPassword);
             $this->getDoctrine()->getManager()->flush();
 
+            // The session is cleaned up after the password has been changed.
+            $this->cleanSessionAfterReset();
+
             // @TODO: please check the login route
             return $this->redirectToRoute('app_home');
         }
