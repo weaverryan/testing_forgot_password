@@ -85,7 +85,16 @@ class ResetPasswordController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
+        try {
+            $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
+        } catch (ResetPasswordExceptionInterface $e) {
+            $this->addFlash('reset_password_error', \sprintf(
+                'There was a problem validating your reset request - %s',
+                $e->getReason()
+            ));
+
+            return $this->redirectToRoute('app_forgot_password_request');
+        }
 
         // The token is valid; allow the user to change their password.
         $form = $this->createForm(ChangePasswordFormType::class);
@@ -103,6 +112,9 @@ class ResetPasswordController extends AbstractController
 
             $user->setPassword($encodedPassword);
             $this->getDoctrine()->getManager()->flush();
+
+            // The session is cleaned up after the password has been changed.
+            $this->cleanSessionAfterReset();
 
             // @TODO: please check the login route
             return $this->redirectToRoute('app_home');
