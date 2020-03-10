@@ -12,8 +12,11 @@ use Symfony\Bundle\MakerBundle\InputConfiguration;
 use Symfony\Bundle\MakerBundle\Maker\AbstractMaker;
 use Symfony\Bundle\MakerBundle\Security\InteractiveSecurityHelper;
 use Symfony\Bundle\MakerBundle\Util\YamlSourceManipulator;
+use Symfony\Bundle\MakerBundle\Validator;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Question\Question;
 use SymfonyCasts\Bundle\ResetPassword\SymfonyCastsResetPasswordBundle;
 
 class ResetPasswordMaker extends AbstractMaker
@@ -61,26 +64,38 @@ class ResetPasswordMaker extends AbstractMaker
 
         // initialize arguments & commands that are internal (i.e. meant only to be asked)
         $command
+            ->addArgument('from-email-address', InputArgument::REQUIRED)
+            ->addArgument('from-email-name', InputArgument::REQUIRED)
             ->addArgument('user-class')
             ->addArgument('email-property-name')
             ->addArgument('email-getter')
             ->addArgument('password-setter')
-            ->addArgument('from-email-address')
-            ->addArgument('from-email-name')
         ;
 
         $emailText[] = 'Please answer the following questions that will be used to generate the email templates.';
         $emailText[] = 'If you are unsure of what these answers will be, that\'s ok. You can change these later in the generated templates.';
         $io->text($emailText);
 
-        $input->setArgument(
-            'from-email-address',
-            $io->ask('What email address will be used to send reset confirmations? I.e. you@your-domain.com')
+        $emailAddressQuestion = new Question('What email address will be used to send reset confirmations from? I.e. admin@your-domain.com');
+        $emailAddressQuestion->setValidator(
+            static function ($answer) {
+                // @TODO - In maker-bundle PR, introduce new native Validator::emailAddress()...
+                $validatedAnswer = filter_var($answer, FILTER_VALIDATE_EMAIL);
+
+                if (!$validatedAnswer) {
+                    throw new RuntimeCommandException(sprintf('"%s" is not a valid email address.', $answer));
+                }
+
+                return $validatedAnswer;
+            }
         );
 
-        $input->setArgument(
-            'from-email-name',
-            $io->ask('What name will be associated with the from email address? I.e. John Smith or ABC Company, LLC')
+        $input->setArgument('from-email-address', $io->askQuestion($emailAddressQuestion));
+        $input->setArgument('from-email-name', $io->ask(
+                'What name will be associated with the email address used to send password reset confirmations? I.e. John Doe or Your Company, LLC.',
+                null,
+                [Validator::class, 'notBlank']
+            )
         );
 
         $interactiveSecurityHelper = new InteractiveSecurityHelper();
