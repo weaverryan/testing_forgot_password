@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\ResetPasswordRequestFormType;
-use App\Form\ResetPasswordResetFormType;
+use App\Form\ChangePasswordFormType;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -72,30 +72,27 @@ class ResetPasswordController extends AbstractController
      */
     public function reset(Request $request, UserPasswordEncoderInterface $passwordEncoder, string $token = null): Response
     {
-        //Put token in session and redirect to self
         if ($token) {
-            // We store token in session and remove it from the URL,
-            // to avoid any leak if someone get to know the URL (AJAX requests, Analytics...).
+            // We store the token in session and remove it from the URL, to avoid the URL being
+            // loaded in a browser and potentially leaking the token to 3rd party JavaScript.
             $this->storeTokenInSession($token);
 
             return $this->redirectToRoute('app_reset_password');
         }
 
-        //Get token out of session storage
         $token = $this->getTokenFromSession();
         if (null === $token) {
             throw $this->createNotFoundException();
         }
 
-        //Validate token using password helper
         $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
 
-        //Reset password after token verified
-        $form = $this->createForm(ResetPasswordResetFormType::class);
+        // The token is valid; allow the user to change their password.
+        $form = $this->createForm(ChangePasswordFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // A ResetPasswordToken should be used only once, remove it.
+            // A password reset token should be used only once, remove it.
             $this->resetPasswordHelper->removeResetRequest($token);
 
             // Encode the plain password, and set it.
@@ -122,7 +119,7 @@ class ResetPasswordController extends AbstractController
             'email' => $emailFormData,
         ]);
 
-        // Needed to be able to access next page, app_check_email
+        // Marks that you are allowed to see the app_check_email page.
         $this->setCanCheckEmailInSession();
 
         // Do not reveal whether a user account was found or not.
