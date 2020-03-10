@@ -56,7 +56,7 @@ class ResetPasswordMaker extends AbstractMaker
         $requirements[] = '1) A user entity has been created.';
         $requirements[] = '2) The user entity contains an email property with getter method.';
         $requirements[] = '3) A user repository exists for the user entity.'."\n";
-        $requirements[] = '<fg=yellow>bin/console make:user</> will generate the user entity and it\'s repository...';
+        $requirements[] = '<fg=yellow>bin/console make:user</> will generate the user entity and it\'s repository...'."\n";
         $io->text($requirements);
 
         // initialize arguments & commands that are internal (i.e. meant only to be asked)
@@ -65,7 +65,23 @@ class ResetPasswordMaker extends AbstractMaker
             ->addArgument('email-property-name')
             ->addArgument('email-getter')
             ->addArgument('password-setter')
+            ->addArgument('from-email-address')
+            ->addArgument('from-email-name')
         ;
+
+        $emailText[] = 'Please answer the following questions that will be used to generate the email templates.';
+        $emailText[] = 'If you are unsure of what these answers will be, that\'s ok. You can change these later in the generated templates.';
+        $io->text($emailText);
+
+        $input->setArgument(
+            'from-email-address',
+            $io->ask('What email address will be used to send reset confirmations? I.e. you@your-domain.com')
+        );
+
+        $input->setArgument(
+            'from-email-name',
+            $io->ask('What name will be associated with the from email address? I.e. John Smith or ABC Company, LLC')
+        );
 
         $interactiveSecurityHelper = new InteractiveSecurityHelper();
 
@@ -152,6 +168,8 @@ class ResetPasswordMaker extends AbstractMaker
                 'reset_form_type_full_class_name' => $changePasswordFormTypeClassNameDetails->getFullName(),
                 'reset_form_type_class_name' => $changePasswordFormTypeClassNameDetails->getShortName(),
                 'password_setter' => $input->getArgument('password-setter'),
+                'from_email' => $input->getArgument('from-email-address'),
+                'from_email_name' => $input->getArgument('from-email-name'),
                 'email_getter' => $input->getArgument('email-getter')
             ]
         );
