@@ -134,8 +134,8 @@ class ResetPasswordMaker extends AbstractMaker
             'Form\\'
         );
 
-        $resetFormTypeClassNameDetails = $generator->createClassNameDetails(
-            'ResetPasswordResetFormType',
+        $changePasswordFormTypeClassNameDetails = $generator->createClassNameDetails(
+            'ChangePasswordFormType',
             'Form\\'
         );
 
@@ -149,8 +149,8 @@ class ResetPasswordMaker extends AbstractMaker
                 'user_class_name' => $userClassNameDetails->getShortName(),
                 'request_form_type_full_class_name' => $requestFormTypeClassNameDetails->getFullName(),
                 'request_form_type_class_name' => $requestFormTypeClassNameDetails->getShortName(),
-                'reset_form_type_full_class_name' => $resetFormTypeClassNameDetails->getFullName(),
-                'reset_form_type_class_name' => $resetFormTypeClassNameDetails->getShortName(),
+                'reset_form_type_full_class_name' => $changePasswordFormTypeClassNameDetails->getFullName(),
+                'reset_form_type_class_name' => $changePasswordFormTypeClassNameDetails->getShortName(),
                 'password_setter' => $input->getArgument('password-setter'),
                 'email_getter' => $input->getArgument('email-getter')
             ]
@@ -197,8 +197,8 @@ class ResetPasswordMaker extends AbstractMaker
         );
 
         $generator->generateClass(
-            $resetFormTypeClassNameDetails->getFullName(),
-            $templatePath.'ResetPasswordResetFormType.tpl.php'
+            $changePasswordFormTypeClassNameDetails->getFullName(),
+            $templatePath.'ChangePasswordFormType.tpl.php'
         );
 
         $generator->generateTemplate(
