@@ -88,7 +88,7 @@ class ResetPasswordController extends AbstractController
         try {
             $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
         } catch (ResetPasswordExceptionInterface $e) {
-            $this->addFlash('reset_password_error', \sprintf(
+            $this->addFlash('reset_password_error', sprintf(
                 'There was a problem validating your reset request - %s',
                 $e->getReason()
             ));
@@ -116,7 +116,6 @@ class ResetPasswordController extends AbstractController
             // The session is cleaned up after the password has been changed.
             $this->cleanSessionAfterReset();
 
-            // @TODO: please check the login route
             return $this->redirectToRoute('app_home');
         }
 
@@ -142,7 +141,7 @@ class ResetPasswordController extends AbstractController
         try {
             $resetToken = $this->resetPasswordHelper->generateResetToken($user);
         } catch (ResetPasswordExceptionInterface $e) {
-            $this->addFlash('reset_password_error', \sprintf(
+            $this->addFlash('reset_password_error', sprintf(
                 'There was a problem handling your password reset request - %s',
                 $e->getReason()
             ));
@@ -151,8 +150,7 @@ class ResetPasswordController extends AbstractController
         }
 
         $email = (new TemplatedEmail())
-            // @TODO - Set correct email address and name
-            ->from(new Address('noreply@mydomain.com', 'Noreply'))
+            ->from(new Address('jr@rushlow.dev', 'SymfonyCasts'))
             ->to($user->getEmail())
             ->subject('Your password reset request')
             ->htmlTemplate('reset_password/email.html.twig')
