@@ -33,7 +33,7 @@ class ResetPasswordController extends AbstractController
     }
 
     /**
-     * @Route(name="app_forgot_password_request")
+     * @Route("/", name="app_forgot_password_request")
      */
     public function request(Request $request, MailerInterface $mailer): Response
     {
