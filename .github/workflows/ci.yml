@@ -22,11 +22,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.0.0
 
-      - name: Ping MySQL
-        run: |
-          while ! mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
-            sleep 1
-          done
+#      - name: Ping MySQL
+#        run: |
+#          while ! mysqladmin ping -h"127.0.0.1" -P${{ job.services.mysql.ports['3306'] }} --silent; do
+#            sleep 1
+#          done
 
       - name: Test MySQL
         run: |
