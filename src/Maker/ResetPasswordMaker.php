@@ -45,7 +45,7 @@ class ResetPasswordMaker extends AbstractMaker
     ) {
         $command
             ->setDescription('Create controller, entity, and repositories for use with SymfonyCasts Reset Password Bundle.')
-            ;
+        ;
     }
 
     public function configureDependencies(DependencyBuilder $dependencies)
@@ -55,9 +55,9 @@ class ResetPasswordMaker extends AbstractMaker
 
     public function interact(InputInterface $input, ConsoleStyle $io, Command $command)
     {
-        $requirements[] = '<question>- Reset Password Bundle Requirements -</>'."\n";
+        $io->title('Reset Password Bundle Requires:');
         $requirements[] = '1) A user entity has been created.';
-        $requirements[] = '2) The user entity contains an email property with getter method.';
+        $requirements[] = '2) The user entity contains an email property with a getter method.';
         $requirements[] = '3) A user repository exists for the user entity.'."\n";
         $requirements[] = '<fg=yellow>bin/console make:user</> will generate the user entity and it\'s repository...'."\n";
         $io->text($requirements);
@@ -73,11 +73,13 @@ class ResetPasswordMaker extends AbstractMaker
             ->addArgument('password-setter')
         ;
 
+        $io->section('- Email Templates -');
         $emailText[] = 'Please answer the following questions that will be used to generate the email templates.';
-        $emailText[] = 'If you are unsure of what these answers will be, that\'s ok. You can change these later in the generated templates.';
+        $emailText[] = 'If you are unsure of what these answers should be, that\'s ok.';
+        $emailText[] = 'You can change these later after the templates have been generated.';
         $io->text($emailText);
 
-        $emailAddressQuestion = new Question('What email address will be used to send reset confirmations from? I.e. admin@your-domain.com');
+        $emailAddressQuestion = new Question('What email address will be used to send reset confirmations? I.e. admin@your-domain.com');
         $emailAddressQuestion->setValidator(
             static function ($answer) {
                 // @TODO - In maker-bundle PR, introduce new native Validator::emailAddress()...
@@ -93,10 +95,10 @@ class ResetPasswordMaker extends AbstractMaker
 
         $input->setArgument('from-email-address', $io->askQuestion($emailAddressQuestion));
         $input->setArgument('from-email-name', $io->ask(
-                'What name will be associated with the email address used to send password reset confirmations? I.e. John Doe or Your Company, LLC.',
-                null,
-                [Validator::class, 'notBlank']
-            )
+            'What name will be associated with the email address used to send password reset confirmations? I.e. John Doe or Your Company, LLC.',
+            null,
+            [Validator::class, 'notBlank']
+        )
         );
 
         $interactiveSecurityHelper = new InteractiveSecurityHelper();
@@ -119,12 +121,13 @@ class ResetPasswordMaker extends AbstractMaker
             )
         );
 
+        $io->section('- Controller Template -');
         $io->comment('<fg=yellow>A named route is required for redirection after a successful reset. Even routes that do not yet exist can be used here.</>');
         $input->setArgument('controller-reset-success-redirect', $io->ask(
-            'After the users password has been reset, where should the user be redirect to?',
+            'What route should users be redirected to after their password has been successfully reset?',
             'app_home',
             [Validator::class, 'notBlank']
-            )
+        )
         );
 
         $io->text(sprintf('Implementing reset password for <info>%s</info>', $userClass));
@@ -219,7 +222,7 @@ class ResetPasswordMaker extends AbstractMaker
 
         $this->fileManager = $this->container->get('maker.file_manager');
         if (!$this->fileManager->fileExists($path = 'config/packages/reset_password.yaml')) {
-            throw new RuntimeCommandException(sprintf('The file "%s" does not exist. This command needs that file to accurately build the reset password config.', $path));
+            throw new RuntimeCommandException(\sprintf('The file "%s" does not exist. This command needs that file to accurately build the reset password config.', $path));
         }
 
         $manipulator = new YamlSourceManipulator($this->fileManager->getFileContents($path));
@@ -272,17 +275,16 @@ class ResetPasswordMaker extends AbstractMaker
 
         $generator->writeChanges();
 
-        $this->successMessage($input, $io);
+        $this->successMessage($input, $io, $controllerClassNameDetails->getFullName());
     }
 
-    private function successMessage(InputInterface $input, ConsoleStyle $io): void
+    private function successMessage(InputInterface $input, ConsoleStyle $io, string $userClassName): void
     {
-        $closing[] = "\n";
-        $closing[] = sprintf('Users will be redirect to <fg=yellow>%s</> after a password reset is successfully completed.', $input->getArgument('controller-reset-success-redirect'));
-        $closing[] = 'The route can be changed later in ResetPasswordController::reset()';
-        $closing[] = 'Set correct "from" email address and name values for the email template in <fg=yellow>ResetPasswordController::processRequestForm()</>';
-        $closing[] = 'Ensure <fg=yellow>MAILER_DSN</> has the correct host for sending emails.';
+        $io->title('The src files required by Reset Password Bundle have been successfully created.');
+        $closing[] = \sprintf('Users will be redirect to <info>%s</info> after a password reset is successfully completed.', $input->getArgument('controller-reset-success-redirect'));
+        $closing[] = \sprintf('The route can be changed later in <info>%s::reset()</info>', $userClassName);
+        $closing[] = 'The "from" email address and name values for the email template can be changed in <info>ResetPasswordController::processRequestForm()</info>';
+        $closing[] = 'Ensure <info>MAILER_DSN</info> has the correct host for sending emails.';
         $io->text($closing);
     }
-
 }
