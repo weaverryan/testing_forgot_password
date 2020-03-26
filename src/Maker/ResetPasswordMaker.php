@@ -198,7 +198,7 @@ class ResetPasswordMaker extends AbstractMaker
                 'success_redirect_route' => $input->getArgument('controller-reset-success-redirect'),
                 'from_email' => $input->getArgument('from-email-address'),
                 'from_email_name' => $input->getArgument('from-email-name'),
-                'email_getter' => $input->getArgument('email-getter')
+                'email_getter' => $input->getArgument('email-getter'),
             ]
         );
 
@@ -207,7 +207,7 @@ class ResetPasswordMaker extends AbstractMaker
             $templatePath.'ResetPasswordRequest.tpl.php',
             [
                 'repository_class_name' => $repositoryClassNameDetails->getFullName(),
-                'user_full_class_name' => $userClassNameDetails->getFullName()
+                'user_full_class_name' => $userClassNameDetails->getFullName(),
             ]
         );
 
@@ -216,7 +216,7 @@ class ResetPasswordMaker extends AbstractMaker
             $templatePath.'ResetPasswordRequestRepository.tpl.php',
             [
                 'request_class_full_name' => $requestClassNameDetails->getFullName(),
-                'request_class_name' => $requestClassNameDetails->getShortName()
+                'request_class_name' => $requestClassNameDetails->getShortName(),
             ]
         );
 
