@@ -19,7 +19,7 @@ class ForgotPasswordControllerTest extends WebTestCase
      */
     public function showsResetRequestForm(): void
     {
-        $this->makeRequest('/forgot-password/request');
+        $this->makeRequest('/reset-password');
 
         self::assertResponseIsSuccessful();
     }
@@ -29,12 +29,12 @@ class ForgotPasswordControllerTest extends WebTestCase
      */
     public function onSubmitRedirectToEmailNotification(): void
     {
-        $client = $this->makeRequest('/forgot-password/request');
-        $client->submitForm('Send e-mail', [
-            'password_request_form[email]' => 'jr@rushlow.dev'
+        $client = $this->makeRequest('/reset-password');
+        $client->submitForm('Send password reset email', [
+            'reset_password_request_form[email]' => 'jr@rushlow.dev'
         ]);
 
-        self::assertResponseRedirects('/forgot-password/check-email');
+        self::assertResponseRedirects('/reset-password/check-email');
     }
 
     /**
@@ -42,19 +42,19 @@ class ForgotPasswordControllerTest extends WebTestCase
      */
     public function errorDisplayedWhenThrottleLimitReached(): void
     {
-        $client = $this->makeRequest('/forgot-password/request');
-        $client->submitForm('Send e-mail', [
-            'password_request_form[email]' => 'jr@rushlow.dev'
+        $client = $this->makeRequest('/reset-password');
+        $client->submitForm('Send password reset email', [
+            'reset_password_request_form[email]' => 'jr@rushlow.dev'
         ]);
 
         $client->followRedirects();
-        $client->request('GET', '/forgot-password/request');
+        $client->request('GET', '/reset-password');
 
-        $crawler = $client->submitForm('Send e-mail', [
-            'password_request_form[email]' => 'jr@rushlow.dev'
+        $crawler = $client->submitForm('Send password reset email', [
+            'reset_password_request_form[email]' => 'jr@rushlow.dev'
         ]);
 
-        self::assertCount(1, $crawler->filter('.flash-error'));
+        self::assertCount(1, $crawler->filter('.alert-danger'));
     }
 
     /**
@@ -62,9 +62,9 @@ class ForgotPasswordControllerTest extends WebTestCase
      */
     public function successfulRequestSendsEmail(): void
     {
-        $client = $this->makeRequest('/forgot-password/request');
-        $client->submitForm('Send e-mail', [
-            'password_request_form[email]' => 'jr@rushlow.dev'
+        $client = $this->makeRequest('/reset-password');
+        $client->submitForm('Send password reset email', [
+            'reset_password_request_form[email]' => 'jr@rushlow.dev'
         ]);
 
         self::assertEmailCount(1);
@@ -75,9 +75,9 @@ class ForgotPasswordControllerTest extends WebTestCase
      */
     public function emailContainsValidResetToken(): void
     {
-        $client = $this->makeRequest('/forgot-password/request');
-        $client->submitForm('Send e-mail', [
-            'password_request_form[email]' => 'jr@rushlow.dev'
+        $client = $this->makeRequest('/reset-password');
+        $client->submitForm('Send password reset email', [
+            'reset_password_request_form[email]' => 'jr@rushlow.dev'
         ]);
 
         $email = self::getMailerMessage();
@@ -85,7 +85,7 @@ class ForgotPasswordControllerTest extends WebTestCase
         $token = $context['resetToken']->getToken();
 
         $client->followRedirects();
-        $client->request('GET', '/forgot-password/reset/'. $token);
+        $client->request('GET', '/reset-password/reset/'. $token);
 
         self::assertPageTitleContains('Reset your password');
     }
